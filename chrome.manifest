@@ -1,0 +1,3 @@
+content macrotemplate   chrome/content/
+locale  macrotemplate   en-US   chrome/locale/en-US/
+overlay chrome://messenger/content/messengercompose/messengercompose.xul	chrome://macrotemplate/content/macrotemplate.xul
