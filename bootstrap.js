@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
     var listener = function(event) {
+        var window = event.currentTarget;
 var replaceMacros = function(s, date) {
     var padZero = function(x, n) {
         var padZeroSub = function(s, i) {
@@ -49,7 +50,6 @@ var replaceMacros = function(s, date) {
     }
     return s;
 };
-        var window = event.currentTarget;
         var handler = {
             date: null,
             NotifyComposeFieldsReady: function() {
@@ -77,16 +77,12 @@ var replaceMacros = function(s, date) {
 
 var windowListener = {
     onOpenWindow: function(aWindow) {
-        var domWindow = aWindow.docShell.
+        var domWindow = aWindow.
             QueryInterface(Components.interfaces.nsIInterfaceRequestor).
             getInterface(Components.interfaces.nsIDOMWindow);
         domWindow.addEventListener("compose-window-init", listener, true);
     },
     onCloseWindow: function (aWindow) {
-        var domWindow = aWindow.docShell.
-            QueryInterface(Components.interfaces.nsIInterfaceRequestor).
-            getInterface(Components.interfaces.nsIDOMWindow);
-        domWindow.removeEventListener("compose-window-init", listener, true);
     },
     onWindowTitleChange: function (aWindow, aTitle) {
     },
@@ -98,7 +94,7 @@ var startup = function(data, reason) {
         getService(Components.interfaces.nsIWindowMediator);
     for (var i = windowMediator.getEnumerator("msgcompose");
          i.hasMoreElements();) {
-        var domWindow = i.getNext().docShell.
+        var domWindow = i.getNext().
             QueryInterface(Components.interfaces.nsIInterfaceRequestor).
             getInterface(Components.interfaces.nsIDOMWindow);
         domWindow.addEventListener("compose-window-init", listener, true);
@@ -112,7 +108,7 @@ var shutdown = function(data, reason) {
         getService(Components.interfaces.nsIWindowMediator);
     for (var i = windowMediator.getEnumerator("msgcompose");
          i.hasMoreElements();) {
-        var domWindow = i.getNext().docShell.
+        var domWindow = i.getNext().
             QueryInterface(Components.interfaces.nsIInterfaceRequestor).
             getInterface(Components.interfaces.nsIDOMWindow);
         domWindow.removeEventListener("compose-window-init", listener, true);
