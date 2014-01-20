@@ -1,7 +1,7 @@
 /*
  * Macro Template
  *
- * Copyright (C) 2013  NISHIMURA Ryohei
+ * Copyright (C) 2013 - 2014  NISHIMURA Ryohei
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  */
     var listener = function(event) {
         var window = event.currentTarget;
-var replaceMacros = function(s, date) {
+        var replaceMacros = function(obj, field, date) {
     var padZero = function(x, n) {
         var padZeroSub = function(s, i) {
             if (i <= 0) {
@@ -30,35 +30,78 @@ var replaceMacros = function(s, date) {
         var s = x.toString();
         return padZeroSub(s, n - s.length);
     };
-    var regexs = [
-        [ /{{{yyyy}}}/g, function(date) {
-            return padZero(date.getFullYear(), 4);
-        } ],
-        [ /{{{MM}}}/g, function(date) {
-            return padZero(date.getMonth() + 1, 2);
-        } ],
-        [ /{{{MMM}}}/g, function(date) {
-            return ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][date.getMonth()];
-        } ],
-        [ /{{{dd}}}/g, function(date) {
-            return padZero(date.getDate(), 2);
-        } ],
-    ];
-    for (var i = 0; i < regexs.length; ++i) {
-        s = s.replace(regexs[i][0], regexs[i][1](date));
-    }
-    return s;
-};
+            var regexs = [
+                [ /{{{y}}}/g, function(date) {
+                    return date.getFullYear().toString();
+                } ],
+                [ /{{{yyyy}}}/g, function(date) {
+                    return padZero(date.getFullYear(), 4);
+                } ],
+                [ /{{{M}}}/g, function(date) {
+                    return (date.getMonth() + 1).toString();
+                } ],
+                [ /{{{MM}}}/g, function(date) {
+                    return padZero(date.getMonth() + 1, 2);
+                } ],
+                [ /{{{MMM}}}/g, function(date) {
+                    return ["Jan", "Feb", "Mar", "Apr",
+                            "May", "Jun", "Jul", "Aug",
+                            "Sep", "Oct", "Nov", "Dec"][date.getMonth()];
+                } ],
+                [ /{{{MMMM}}}/g, function(date) {
+                    return ["January", "February", "March",
+                            "April", "May", "June",
+                            "July", "August", "September",
+                            "October", "November", "December"][date.getMonth()];
+                } ],
+                [ /{{{d}}}/g, function(date) {
+                    return date.getDate().toString();
+                } ],
+                [ /{{{dd}}}/g, function(date) {
+                    return padZero(date.getDate(), 2);
+                } ],
+                [ /{{{E}}}/g, function(date) {
+                    return ["Sunday", "Monday", "Tuesday", "Wednesday",
+                            "Thursday", "Friday", "Saturday"][date.getDay()];
+                } ],
+                [ /{{{EEE}}}/g, function(date) {
+                    return ["Sun", "Mon", "Tue", "Wed",
+                            "Thu", "Fri", "Sat"][date.getDay()];
+                } ],
+                [ /{{{H}}}/g, function(date) {
+                    return date.getHours().toString();
+                } ],
+                [ /{{{HH}}}/g, function(date) {
+                    return padZero(date.getHours(), 2);
+                } ],
+                [ /{{{m}}}/g, function(date) {
+                    return date.getMinutes().toString();
+                } ],
+                [ /{{{mm}}}/g, function(date) {
+                    return padZero(date.getMinutes(), 2);
+                } ],
+                [ /{{{s}}}/g, function(date) {
+                    return date.getSeconds().toString();
+                } ],
+                [ /{{{ss}}}/g, function(date) {
+                    return padZero(date.getSeconds(), 2);
+                } ],
+            ];
+            var s = obj[field];
+            for (var i = 0; i < regexs.length; ++i) {
+                s = s.replace(regexs[i][0], regexs[i][1](date));
+            }
+            if (s != obj[field]) {
+                obj[field] = s;
+            }
+        };
         var handler = {
             date: null,
             NotifyComposeFieldsReady: function() {
                 this.date = new Date();
                 var document = window.document;
-                var msgSubject = document.getElementById("msgSubject");
-                var subject = msgSubject.value;
-                subject = replaceMacros(subject, this.date);
-                msgSubject.value = subject;
+                replaceMacros(document.getElementById("msgSubject"), "value",
+                              this.date);
             },
             ComposeProcessDone: function(aResult) {
             },
@@ -66,10 +109,20 @@ var replaceMacros = function(s, date) {
             },
             NotifyComposeBodyReady: function() {
                 var document = window.document;
+                var icol = 1;
+                var col;
+                while (true) {
+                    var id = "addressCol2#" + (icol++).toString();
+                    col = document.getElementById(id);
+                    if (col == null) {
+                        break;
+                    }
+                    replaceMacros(col, "value", this.date);
+                }
                 var contentFrame = document.getElementById("content-frame");
                 var body = contentFrame.contentDocument.body.innerHTML;
-                body = replaceMacros(body, this.date);
-                contentFrame.contentDocument.body.innerHTML = body;
+                replaceMacros(contentFrame.contentDocument.body, "innerHTML",
+                              this.date);
             },
         };
         window.gMsgCompose.RegisterStateListener(handler);
