@@ -136,6 +136,10 @@ var windowListener = {
         domWindow.addEventListener("compose-window-init", listener, true);
     },
     onCloseWindow: function (aWindow) {
+        var domWindow = aWindow.
+            QueryInterface(Components.interfaces.nsIInterfaceRequestor).
+            getInterface(Components.interfaces.nsIDOMWindow);
+        domWindow.removeEventListener("compose-window-init", listener, true);
     },
     onWindowTitleChange: function (aWindow, aTitle) {
     },
