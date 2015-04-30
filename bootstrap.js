@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+    var inputTags = {};
     var listener = function(event) {
         var window = event.currentTarget;
         var replaceMacros = function(obj, field, date) {
@@ -91,13 +92,26 @@
             for (var i = 0; i < regexs.length; ++i) {
                 s = s.replace(regexs[i][0], regexs[i][1](date));
             }
+            
+            while (match = regExpTag.exec(s)) { 
+                tag=match[0]
+                val=match[0].replace(/({|})/g,'');
+                if ( inputTags[tag] == null ) {
+                    inputTags[tag] = window.prompt(val);
+                }
+            }
+            for (var tag in inputTags)
+            {
+                s = s.replace(new RegExp(tag, "g"), inputTags[tag]);
+            }
             if (s != obj[field]) {
                 obj[field] = s;
             }
         };
         var handler = {
             date: null,
-            NotifyComposeFieldsReady: function() {
+            NotifyComposeFieldsReady: function() 
+                inputTags = {};
                 this.date = new Date();
                 var document = window.document;
                 replaceMacros(document.getElementById("msgSubject"), "value",
