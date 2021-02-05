@@ -91,6 +91,8 @@ browser.tabs.onCreated.addListener(async (tab) => {
             }
             return s;
         };
+    // Sleep for a second to wait for all of the fields filled.
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     // Call getComposeDetails twice.
     // Hack for the problem that details of replies cannot be got correctly.
     await browser.compose.getComposeDetails(tab.id);
