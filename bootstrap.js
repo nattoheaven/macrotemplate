@@ -16,6 +16,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+// source: https://weeknumber.net/how-to/javascript
+Date.prototype.getWeek = function() {
+  var date = new Date(this.getTime());
+  date.setHours(0, 0, 0, 0);
+  // Thursday in current week decides the year.
+  date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+  // January 4 is always in week 1.
+  var week1 = new Date(date.getFullYear(), 0, 4);
+  // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+  return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+                        - 3 + (week1.getDay() + 6) % 7) / 7);
+}
+
+//returns the relative day in the week of date d
+//based on: https://stackoverflow.com/a/62899412/704329
+// d - some date
+// dy - day of week to calculate date
+//    1 - return date of Monday of the week of d
+//    2 - return date of Tuessday of the week of d
+//    ...
+function getRelativeDayInWeek(d, dy) {
+    d = new Date(d);
+    var day = d.getDay();
+    if (day == 0) { 
+        day = 7; 
+    }
+    var diff = d.getDate() + dy-day;
+    return new Date(d.setDate(diff));
+}
+
+
 browser.tabs.onCreated.addListener(async (tab) => {
         var replaceMacros = function(s, date) {
     var padZero = function(x, n) {
@@ -85,7 +117,18 @@ browser.tabs.onCreated.addListener(async (tab) => {
                 [ /{{{ss}}}/g, function(date) {
                     return padZero(date.getSeconds(), 2);
                 } ],
-            ];
+                [ /{{{w}}}/g, function(date) {
+                    return date.getWeek().toString();
+                } ],
+                [ /{{{w1}}}/g, function(date) {
+                    monday = getRelativeDayInWeek(date, 1);
+                    return monday.toLocaleDateString({month: '2-digit', day: '2-digit'});
+                } ],
+                [ /{{{w5}}}/g, function(date) {
+                    friday = getRelativeDayInWeek(date, 5);
+                    return friday.toLocaleDateString({month: '2-digit', day: '2-digit'});
+                } ],
+           ];
             for (var i = 0; i < regexs.length; ++i) {
                 s = s.replace(regexs[i][0], regexs[i][1](date));
             }
@@ -99,6 +142,7 @@ browser.tabs.onCreated.addListener(async (tab) => {
     let details = await browser.compose.getComposeDetails(tab.id);
     if (details) {
         let date = new Date();
+        console.log('date is ' + date);
         let oldSubject = details.subject;
         let newSubject = replaceMacros(oldSubject, date);
         if (details.isPlainText) {
@@ -112,3 +156,4 @@ browser.tabs.onCreated.addListener(async (tab) => {
         }
     }
 });
+console.log("macrotemplate loaded")
