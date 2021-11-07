@@ -148,11 +148,15 @@ browser.tabs.onCreated.addListener(async (tab) => {
         if (details.isPlainText) {
             let oldBody = details.plainTextBody;
             let newBody = replaceMacros(oldBody, date);
-            browser.compose.setComposeDetails(tab.id, { plainTextBody: newBody, subject: newSubject });
+            if (oldSubject != newSubject || oldBody != newBody) {
+                browser.compose.setComposeDetails(tab.id, { plainTextBody: newBody, subject: newSubject });
+            }
         } else {
             let oldBody = details.body;
             let newBody = replaceMacros(oldBody, date);
-            browser.compose.setComposeDetails(tab.id, { body: newBody, subject: newSubject });
+            if (oldSubject != newSubject || oldBody != newBody) {
+                browser.compose.setComposeDetails(tab.id, { body: newBody, subject: newSubject });
+            }
         }
     }
 });
