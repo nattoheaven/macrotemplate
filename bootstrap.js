@@ -1,7 +1,7 @@
 /*
  * Macro Template
  *
- * Copyright (C) 2013 - 2021  NISHIMURA Ryohei
+ * Copyright (C) 2013 - 2024  NISHIMURA Ryohei
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,6 +69,9 @@ browser.tabs.onCreated.addListener(async (tab) => {
             [ /{{{yyyy}}}/g, function(date) {
                 return padZero(date.getFullYear(), 4);
             } ],
+            [ /{{{yyyy\+(\d)}}}/g, function(date) {
+                return date.getFullYear();
+            } ],
             [ /{{{M}}}/g, function(date) {
                 return (date.getMonth() + 1).toString();
             } ],
@@ -131,7 +134,17 @@ browser.tabs.onCreated.addListener(async (tab) => {
             } ],
         ];
         for (var i = 0; i < regexs.length; ++i) {
-            s = s.replace(regexs[i][0], regexs[i][1](date));
+            if ( regexs[i][0].toString() === /{{{yyyy\+(\d)}}}/g.toString() ) {
+                    var res = s.match(regexs[i][0]);
+                    if ( res !== null ) {
+                        for(var j = 0; j < res.length; ++j) {
+                            var res2 = [...res[j].matchAll(regexs[i][0])];
+                            s = s.replace(res[j], regexs[i][1](date)+Number(res2[0][1]));
+                        }
+                    }
+            } else {
+                s = s.replace(regexs[i][0], regexs[i][1](date));
+            }
         }
         return s;
     };
