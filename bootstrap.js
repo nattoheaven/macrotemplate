@@ -1,7 +1,7 @@
 /*
  * Macro Template
  *
- * Copyright (C) 2013 - 2024  NISHIMURA Ryohei
+ * Copyright (C) 2013 - 2025  NISHIMURA Ryohei
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ Date.prototype.getWeek = function() {
     var week1 = new Date(date.getFullYear(), 0, 4);
     // Adjust to Thursday in week 1 and count number of weeks from date to week1.
     return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
-        - 3 + (week1.getDay() + 6) % 7) / 7);
+                           - 3 + (week1.getDay() + 6) % 7) / 7);
 }
 
 //returns the relative day in the week of date d
@@ -62,89 +62,92 @@ browser.tabs.onCreated.addListener(async (tab) => {
             var s = x.toString();
             return padZeroSub(s, n - s.length);
         };
+        var getLocale = function(p1, p2) {
+            if (typeof p1 === "undefined") {
+                return "en-US";
+            } else if (p2 === "") {
+                return browser.i18n.getUILanguage();
+            } else {
+                return p2;
+            }
+        };
+        var getLocale2 = function(p1, p2) {
+            if (typeof p1 === "undefined") {
+                return undefined;
+            } else if (p2 === "") {
+                return browser.i18n.getUILanguage();
+            } else {
+                return p2;
+            }
+        };
         var regexs = [
-            [ /{{{y}}}/g, function(date) {
-                return date.getFullYear().toString();
+            [ /{{{y({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
+                return date.toLocaleDateString(getLocale(p1, p2), { year: 'numeric' });
             } ],
-            [ /{{{yyyy}}}/g, function(date) {
-                return padZero(date.getFullYear(), 4);
+            [ /{{{yyyy(\+(\d))?({([^}]*)})?}}}/g, function(match, p1, p2, p3, p4, offset, string, groups) {
+                debugger;
+                if (typeof p1 === "undefined") {
+                    return padZero(date.toLocaleDateString(getLocale(p3, p4), { year: 'numeric' }), 4);
+                } else {
+                    return date.getFullYear() + Number(p2);
+                }
             } ],
-            [ /{{{yyyy\+(\d)}}}/g, function(date) {
-                return date.getFullYear();
+            [ /{{{M({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
+                return date.toLocaleDateString(getLocale(p1, p2), { month: 'numeric' });
             } ],
-            [ /{{{M}}}/g, function(date) {
-                return (date.getMonth() + 1).toString();
+            [ /{{{MM({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
+                return date.toLocaleDateString(getLocale(p1, p2), { month: '2-digit' });
             } ],
-            [ /{{{MM}}}/g, function(date) {
-                return padZero(date.getMonth() + 1, 2);
+            [ /{{{MMM({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
+                return date.toLocaleDateString(getLocale(p1, p2), { month: 'short' });
             } ],
-            [ /{{{MMM}}}/g, function(date) {
-                return ["Jan", "Feb", "Mar", "Apr",
-                    "May", "Jun", "Jul", "Aug",
-                    "Sep", "Oct", "Nov", "Dec"][date.getMonth()];
+            [ /{{{MMMM({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
+                return date.toLocaleDateString(getLocale(p1, p2), { month: 'long' });
             } ],
-            [ /{{{MMMM}}}/g, function(date) {
-                return ["January", "February", "March",
-                    "April", "May", "June",
-                    "July", "August", "September",
-                    "October", "November", "December"][date.getMonth()];
+            [ /{{{d({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
+                return date.toLocaleDateString(getLocale(p1, p2), { day: 'numeric' });
             } ],
-            [ /{{{d}}}/g, function(date) {
-                return date.getDate().toString();
+            [ /{{{dd({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
+                return date.toLocaleDateString(getLocale(p1, p2), { day: '2-digit' });
             } ],
-            [ /{{{dd}}}/g, function(date) {
-                return padZero(date.getDate(), 2);
+            [ /{{{E({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
+                return date.toLocaleDateString(getLocale(p1, p2), { weekday: 'long' });
             } ],
-            [ /{{{E}}}/g, function(date) {
-                return ["Sunday", "Monday", "Tuesday", "Wednesday",
-                    "Thursday", "Friday", "Saturday"][date.getDay()];
+            [ /{{{EEE({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
+                return date.toLocaleDateString(getLocale(p1, p2), { weekday: 'short' });
             } ],
-            [ /{{{EEE}}}/g, function(date) {
-                return ["Sun", "Mon", "Tue", "Wed",
-                    "Thu", "Fri", "Sat"][date.getDay()];
+            [ /{{{H({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
+                return date.toLocaleTimeString(getLocale(p1, p2), { hour12: false, hour: 'numeric' });
             } ],
-            [ /{{{H}}}/g, function(date) {
-                return date.getHours().toString();
+            [ /{{{HH({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
+                return date.toLocaleTimeString(getLocale(p1, p2), { hour12: false, hour: '2-digit' });
             } ],
-            [ /{{{HH}}}/g, function(date) {
-                return padZero(date.getHours(), 2);
+            [ /{{{m({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
+                return date.toLocaleTimeString(getLocale(p1, p2), { minute: 'numeric' });
             } ],
-            [ /{{{m}}}/g, function(date) {
-                return date.getMinutes().toString();
+            [ /{{{mm({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
+                return date.toLocaleTimeString(getLocale(p1, p2), { minute: '2-digit' });
             } ],
-            [ /{{{mm}}}/g, function(date) {
-                return padZero(date.getMinutes(), 2);
+            [ /{{{s({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
+                return date.toLocaleTimeString(getLocale(p1, p2), { second: 'numeric' });
             } ],
-            [ /{{{s}}}/g, function(date) {
-                return date.getSeconds().toString();
+            [ /{{{ss({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
+                return date.toLocaleTimeString(getLocale(p1, p2), { second: '2-digit' });
             } ],
-            [ /{{{ss}}}/g, function(date) {
-                return padZero(date.getSeconds(), 2);
-            } ],
-            [ /{{{w}}}/g, function(date) {
+            [ /{{{w({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
                 return date.getWeek().toString();
             } ],
-            [ /{{{w1}}}/g, function(date) {
+            [ /{{{w1({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
                 monday = getRelativeDayInWeek(date, 1);
-                return monday.toLocaleDateString({month: '2-digit', day: '2-digit'});
+                return monday.toLocaleDateString(getLocale2(p1, p2), {month: '2-digit', day: '2-digit'});
             } ],
-            [ /{{{w5}}}/g, function(date) {
+            [ /{{{w5({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
                 friday = getRelativeDayInWeek(date, 5);
-                return friday.toLocaleDateString({month: '2-digit', day: '2-digit'});
+                return friday.toLocaleDateString(getLocale2(p1, p2), {month: '2-digit', day: '2-digit'});
             } ],
         ];
         for (var i = 0; i < regexs.length; ++i) {
-            if ( regexs[i][0].toString() === /{{{yyyy\+(\d)}}}/g.toString() ) {
-                    var res = s.match(regexs[i][0]);
-                    if ( res !== null ) {
-                        for(var j = 0; j < res.length; ++j) {
-                            var res2 = [...res[j].matchAll(regexs[i][0])];
-                            s = s.replace(res[j], regexs[i][1](date)+Number(res2[0][1]));
-                        }
-                    }
-            } else {
-                s = s.replace(regexs[i][0], regexs[i][1](date));
-            }
+            s = s.replace(regexs[i][0], regexs[i][1]);
         }
         return s;
     };

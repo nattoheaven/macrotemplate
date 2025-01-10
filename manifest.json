@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Macro Template",
   "description": "To Apply Macros To Templates",
-  "version": "3.3.0.0",
+  "version": "3.4.0.0",
   "author": "Nattoheaven",
   "homepage_url": "https://github.com/nattoheaven/macrotemplate/",
   "applications": {
