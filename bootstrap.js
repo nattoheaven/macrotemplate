@@ -137,13 +137,13 @@ browser.tabs.onCreated.addListener(async (tab) => {
             [ /{{{w({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
                 return date.getWeek().toString();
             } ],
-            [ /{{{w1({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
-                monday = getRelativeDayInWeek(date, 1);
-                return monday.toLocaleDateString(getLocale2(p1, p2), {month: '2-digit', day: '2-digit'});
+            [ /{{{w([1234567])({([^}]*)})?}}}/g, function(match, p1, p2, p3, offset, string, groups) {
+                monday = getRelativeDayInWeek(date, Number(p1));
+                return monday.toLocaleDateString(getLocale2(p2, p3), {month: '2-digit', day: '2-digit'});
             } ],
-            [ /{{{w5({([^}]*)})?}}}/g, function(match, p1, p2, offset, string, groups) {
-                friday = getRelativeDayInWeek(date, 5);
-                return friday.toLocaleDateString(getLocale2(p1, p2), {month: '2-digit', day: '2-digit'});
+            [ /{{{www([1234567])({([^}]*)})?}}}/g, function(match, p1, p2, p3, offset, string, groups) {
+                monday = getRelativeDayInWeek(date, Number(p1));
+                return monday.toLocaleDateString(getLocale(p2, p3), {year: 'numeric', month: 'long', day: 'numeric'});
             } ],
         ];
         for (var i = 0; i < regexs.length; ++i) {
